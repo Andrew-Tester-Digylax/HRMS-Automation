@@ -1,0 +1,19 @@
+name: HRMS Automation CI
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t hrms-tests .
+
+      - name: Run Tests
+        run: docker run hrms-tests

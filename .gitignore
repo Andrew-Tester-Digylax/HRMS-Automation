@@ -1,0 +1,71 @@
+# =========================
+# MAVEN
+# =========================
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# =========================
+# LOG FILES
+# =========================
+*.log
+
+# =========================
+# TEST ARTIFACTS
+# =========================
+screenshots/
+
+# =========================
+# NODE (if used)
+# =========================
+node_modules/
+
+# =========================
+# KOTLIN
+# =========================
+.kotlin/
+
+# =========================
+# INTELLIJ
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# =========================
+# ECLIPSE
+# =========================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =========================
+# NETBEANS
+# =========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# =========================
+# VS CODE
+# =========================
+.vscode/
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
