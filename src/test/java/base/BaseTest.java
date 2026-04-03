@@ -7,7 +7,6 @@ import org.testng.annotations.BeforeMethod;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class BaseTest {
 
@@ -21,44 +20,34 @@ public class BaseTest {
 
         playwright = Playwright.create();
 
-        // 🔥 Detect CI environment (GitHub Actions / Docker)
-        boolean isCI = System.getenv("CI") != null;
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
 
-        System.out.println("Running in CI: " + isCI);
-
-        // 🔥 Launch browser properly for both local + CI
         browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(isCI) // ✅ Headless in CI, headed locally
-                        .setArgs(Arrays.asList(
-                                "--no-sandbox",
-                                "--disable-dev-shm-usage"
-                        ))
+                        .setHeadless(headless)
+                        .setArgs(java.util.List.of("--start-maximized"))
         );
 
-        // 🔥 Context setup
         context = browser.newContext(
                 new Browser.NewContextOptions()
-                        .setViewportSize(null) // maximize-like behavior
+                        .setViewportSize(null) // Maximized — no fixed viewport
         );
 
         page = context.newPage();
 
-        // 🔥 Base URL (can override using -DbaseUrl)
+        // BaseUrl can be overridden via -DbaseUrl=... in Maven/TestNG
         String baseUrl = System.getProperty("baseUrl",
                 "http://digy-hrms-quality-fe.s3-website-us-east-1.amazonaws.com/auth/login");
-
         page.navigate(baseUrl);
         page.waitForLoadState();
 
-        System.out.println("🚀 Browser launched successfully");
+        System.out.println("🚀 Browser launched in MAXIMIZED mode");
     }
 
     @AfterMethod
     public void tearDown(ITestResult result) {
 
-        // 📸 Take screenshot on failure
-        if (page != null && result.getStatus() == ITestResult.FAILURE) {
+        if (page != null && ITestResult.FAILURE == result.getStatus()) {
 
             File dir = new File("screenshots");
             if (!dir.exists()) dir.mkdirs();
@@ -71,10 +60,9 @@ public class BaseTest {
                     .setPath(Paths.get(fileName))
                     .setFullPage(true));
 
-            System.out.println("📸 Screenshot saved: " + fileName);
+            System.out.println("📸 Failure screenshot saved: " + fileName);
         }
 
-        // 🔒 Cleanup
         if (context != null) context.close();
         if (browser != null) browser.close();
         if (playwright != null) playwright.close();

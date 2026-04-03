@@ -22,61 +22,46 @@ public class EmployeesTest extends BaseTest {
         login.enterPasswordAndLogin("Andrew@98");
 
         // ── 2. NAVIGATE TO EMPLOYEES ──────────────────────────────────────────
+        // goToEmployees() clicks the card, waits for networkidle, takes a
+        // debug screenshot, and verifies we are on the list page.
+        // If the card navigated to a wrong sub-page, it tries direct URL navigation.
         emp.goToEmployees();
 
-        // ── 3. OPEN FORMER EMPLOYEES TAB ──────────────────────────────────────
+        // ── 3. SWITCH TO EMPLOYEE VIEW ────────────────────────────────────────
+        emp.switchToEmployeeView();
+
+        // ── 4. FORMER EMPLOYEES TAB ───────────────────────────────────────────
         emp.goToFormerAndWait();
 
-        // ── 4. BACK TO ALL TEAM ───────────────────────────────────────────────
+        // ── 5. BACK TO ALL TEAM ───────────────────────────────────────────────
         emp.switchToAllTeam();
 
-        // ── 5. SEARCH ─────────────────────────────────────────────────────────
+        // ── 6. SEARCH VALIDATION ──────────────────────────────────────────────
         emp.searchMultipleEmployees(List.of(
                 "andrew", "hari", "karthi", "praveen", "krishna"
         ));
         page.waitForTimeout(2000);
 
-        // ── 6. RESET ──────────────────────────────────────────────────────────
+        // ── 7. RESET ──────────────────────────────────────────────────────────
         emp.switchToAllTeam();
 
-        // ── 7. SORT ───────────────────────────────────────────────────────────
+        // ── 8. SORT VALIDATION ────────────────────────────────────────────────
         emp.applyAscendingSortAndValidate();
         emp.applyDescendingSortAndValidate();
 
-        // ── 8. TABLE VIEW ─────────────────────────────────────────────────────
-        // Toggle: "//span[@class='me-2']//*[name()='svg']"
-        // Item:   "//a[normalize-space()='Table View']"
+        // ── 9. TABLE VIEW ─────────────────────────────────────────────────────
         emp.switchToTableView();
         page.waitForTimeout(2000);
 
-        // ── 9. FILTER (AG Grid floating filter) ───────────────────────────────
+        // ── 10. FILTER VALIDATION ─────────────────────────────────────────────
         emp.filterByFirstNames(List.of(
                 "andrew", "hari", "karthi", "praveen", "krishna"
         ));
 
-        // ── 10. SWITCH BACK TO EMPLOYEE VIEW ──────────────────────────────────
-        // Toggle: "//span[@class='me-2']//*[name()='svg']"
-        // Item:   "//a[normalize-space()='Employee View']"
-        emp.switchToEmployeeView();
-        page.waitForTimeout(2000);
-
-        // ── 11. ALL TEAM ──────────────────────────────────────────────────────
-        emp.switchToAllTeam();
-
-        // ── 12. PAGINATION VALIDATION ─────────────────────────────────────────
-        // • Reads "1 to 10 of 15" → total=15
-        // • Scrolls down → verifies 10 records on page 1
-        // • Clicks  "//span[@class='ag-icon ag-icon-next']"
-        // • Scrolls down → verifies 5 records on page 2
-        // • Checks no duplicates between pages
-        // • Asserts 10 + 5 = 15
+        // ── 11. PAGINATION VALIDATION ─────────────────────────────────────────
         emp.verifyPaginationAndData();
 
-        // ── 13. FORMER ISOLATION ──────────────────────────────────────────────
-        // • Collects All Team names (all pages)
-        // • Opens "//button[@id='pill-tab-tab-resigned']"
-        // • Collects Former names (all pages)
-        // • Fails + screenshot if any name appears in both
+        // ── 12. FORMER ISOLATION VALIDATION ───────────────────────────────────
         emp.verifyFormerNotInAllTeam();
 
         System.out.println("\n🎉 ALL VALIDATIONS PASSED 🎉\n");
