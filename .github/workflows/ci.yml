@@ -16,8 +16,15 @@ jobs:
       - name: Build Docker Image
         run: docker build -t hrms-tests .
 
+      # Run container, copy reports out before it's removed
       - name: Run Tests in Docker
-        run: docker run --rm hrms-tests
+        run: |
+          docker run --name hrms-run hrms-tests || true
+          docker cp hrms-run:/app/target/surefire-reports ./surefire-reports || true
+          docker cp hrms-run:/app/screenshots ./screenshots || true
+          docker rm hrms-run
+          # Now fail the step if tests failed
+          docker run --rm hrms-tests
 
       - name: Upload Screenshots on Failure
         if: failure()
@@ -32,5 +39,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: surefire-report
-          path: target/surefire-reports/
+          path: surefire-reports/
           retention-days: 7
