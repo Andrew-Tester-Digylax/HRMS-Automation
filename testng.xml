@@ -1,9 +1,23 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<suite name="HRMS Suite">
+<suite name="HRMS Suite" verbose="1">
+
     <test name="Login Tests">
         <classes>
             <class name="tests.LoginTests"/>
         </classes>
     </test>
+
+    <test name="Employees Tests">
+        <classes>
+            <class name="tests.EmployeesTest"/>
+        </classes>
+    </test>
+
+    <test name="Employee Onboarding Tests">
+        <classes>
+            <class name="tests.EmployeeOnboardingTest"/>
+        </classes>
+    </test>
+
 </suite>
