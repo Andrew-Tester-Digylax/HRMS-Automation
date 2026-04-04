@@ -3,6 +3,7 @@ name: HRMS Automation CI
 on:
   push:
     branches: ["testing"]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -17,3 +18,19 @@ jobs:
 
       - name: Run Tests in Docker
         run: docker run --rm hrms-tests
+
+      - name: Upload Screenshots on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots
+          path: screenshots/
+          retention-days: 7
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: target/surefire-reports/
+          retention-days: 7
