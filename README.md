@@ -1,2 +1,169 @@
-# HRMS-Automation
-End-to-end HRMS automation testing using Playwright, TestNG, Docker, and CI/CD
+# HRMS Automation
+
+![CI](https://github.com/Andrew-Tester-Digylax/HRMS-Automation/actions/workflows/ci.yml/badge.svg?branch=testing)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=java)
+![Playwright](https://img.shields.io/badge/Playwright-1.45.0-green?logo=playwright)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue?logo=docker)
+![TestNG](https://img.shields.io/badge/TestNG-7.10.2-red)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+End-to-end HRMS automation testing using **Playwright**, **TestNG**, **Docker**, and **CI/CD** via GitHub Actions.
+
+---
+
+## 📋 Table of Contents
+
+- [Project Overview](#-project-overview)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Test Cases](#-test-cases)
+- [Setup & Run Locally](#-setup--run-locally)
+- [Run with Docker](#-run-with-docker)
+- [CI/CD Pipeline](#-cicd-pipeline)
+- [Screenshots](#-screenshots)
+
+---
+
+## 🧪 Project Overview
+
+This project automates the **Employees module** of the HRMS web application hosted at:
+`http://digy-hrms-quality-fe.s3-website-us-east-1.amazonaws.com`
+
+It covers end-to-end flows including login, navigation, search, sort, filter, pagination, and former employee isolation — all validated with assertions and screenshots on failure.
+
+---
+
+## 🛠 Tech Stack
+
+| Tool | Version | Purpose |
+|---|---|---|
+| Java | 17 | Programming language |
+| Playwright | 1.45.0 | Browser automation |
+| TestNG | 7.10.2 | Test framework |
+| Maven | 3.9+ | Build & dependency management |
+| Docker | latest | Containerized test execution |
+| GitHub Actions | — | CI/CD pipeline |
+
+---
+
+## 📁 Project Structure
+
+```
+HRMS_Project/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions CI pipeline
+├── src/
+│   └── test/
+│       └── java/
+│           ├── base/
+│           │   └── BaseTest.java   # Browser setup (headed/headless auto-detect)
+│           ├── pages/
+│           │   ├── LoginPage.java
+│           │   └── EmployeesPage.java
+│           └── tests/
+│               ├── LoginTests.java
+│               └── EmployeesTest.java
+├── screenshots/                    # Auto-saved on test failure
+├── Dockerfile                      # Playwright Java Docker image
+├── testng.xml                      # TestNG suite configuration
+└── pom.xml                         # Maven dependencies
+```
+
+---
+
+## ✅ Test Cases
+
+### Login
+| # | Test Case | Status |
+|---|---|---|
+| TC01 | Login with valid credentials | ✅ Pass |
+
+### Employees Module
+| # | Test Case | Status |
+|---|---|---|
+| TC01 | Login | ✅ Pass |
+| TC02 | Navigate to Employees page | ✅ Pass |
+| TC03 | Switch to Employee View | ✅ Pass |
+| TC04 | Open Former Employees tab | ✅ Pass |
+| TC05 | Switch back to All Team tab | ✅ Pass |
+| TC06 | Search validation (5 employees) | ✅ Pass |
+| TC07 | Reset view to All Team | ✅ Pass |
+| TC08A | Ascending sort validation | ✅ Pass |
+| TC08B | Descending sort validation | ✅ Pass |
+| TC09 | Switch to Table View | ✅ Pass |
+| TC10 | Column filter validation (5 names) | ✅ Pass |
+| TC11 | Pagination label & navigation | ✅ Pass |
+| TC12 | Former employee isolation check | ✅ Pass |
+
+---
+
+## 🚀 Setup & Run Locally
+
+### Prerequisites
+- Java 17
+- Maven 3.9+
+- IntelliJ IDEA (recommended)
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Andrew-Tester-Digylax/HRMS-Automation.git
+cd HRMS-Automation
+
+# 2. Install dependencies
+mvn clean install -DskipTests
+
+# 3. Run all tests (headed browser — you can watch it)
+mvn test
+```
+
+> **Note:** Running locally opens a real browser window. Running in Docker or CI uses headless mode automatically.
+
+---
+
+## 🐳 Run with Docker
+
+```bash
+# Build the Docker image
+docker build -t hrms-tests .
+
+# Run tests inside Docker (headless)
+docker run --rm hrms-tests
+```
+
+---
+
+## ⚙️ CI/CD Pipeline
+
+Every push to the `testing` branch automatically:
+
+1. ✅ Checks out the code
+2. ✅ Builds the Docker image
+3. ✅ Runs all tests inside Docker (headless)
+4. ✅ Uploads failure screenshots as artifacts
+5. ✅ Uploads surefire test reports as artifacts
+
+You can also trigger it manually via **Actions → Run workflow**.
+
+```yaml
+on:
+  push:
+    branches: ["testing"]
+  workflow_dispatch:
+```
+
+---
+
+## 📸 Screenshots
+
+Screenshots are automatically saved to the `screenshots/` folder on test failure and uploaded as GitHub Actions artifacts for easy debugging.
+
+---
+
+## 👤 Author
+
+**Andrew Paul**
+QA Automation Engineer — Digylax
+[GitHub](https://github.com/Andrew-Tester-Digylax)

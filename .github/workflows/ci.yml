@@ -2,7 +2,8 @@ name: HRMS Automation CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["testing"]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -12,11 +13,31 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      - name: Build Docker Image
+        run: docker build -t hrms-tests .
 
-      - name: Build & Run Tests
-        run: mvn clean test
+      # Run container, copy reports out before it's removed
+      - name: Run Tests in Docker
+        run: |
+          docker run --name hrms-run hrms-tests || true
+          docker cp hrms-run:/app/target/surefire-reports ./surefire-reports || true
+          docker cp hrms-run:/app/screenshots ./screenshots || true
+          docker rm hrms-run
+          # Now fail the step if tests failed
+          docker run --rm hrms-tests
+
+      - name: Upload Screenshots on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots
+          path: screenshots/
+          retention-days: 7
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: surefire-reports/
+          retention-days: 7

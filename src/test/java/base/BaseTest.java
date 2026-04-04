@@ -1,7 +1,6 @@
 package base;
 
 import com.microsoft.playwright.*;
-import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -16,57 +15,59 @@ public class BaseTest {
     protected Page page;
 
     @BeforeMethod
-    public void setup() {
-
+    public void setUp() {
         playwright = Playwright.create();
 
-        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
+        // ── Detect if running in CI (Docker / GitHub Actions) ─────────────
+        // In CI there is no display, so we MUST use headless mode.
+        // Locally (Windows/Mac) we run headed so you can watch the browser.
+        boolean isCI = System.getenv("CI") != null
+                || System.getenv("GITHUB_ACTIONS") != null
+                || System.getProperty("headless", "false").equalsIgnoreCase("true");
 
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions()
-                        .setHeadless(headless)
-                        .setArgs(java.util.List.of("--start-maximized"))
-        );
+        BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
+                .setHeadless(isCI);   // headless=true in CI, false locally
 
-        context = browser.newContext(
-                new Browser.NewContextOptions()
-                        .setViewportSize(null) // Maximized — no fixed viewport
-        );
+        if (!isCI) {
+            // Maximized window only makes sense in headed mode
+            launchOptions.setArgs(java.util.List.of("--start-maximized"));
+        }
 
-        page = context.newPage();
+        browser = playwright.chromium().launch(launchOptions);
 
-        // BaseUrl can be overridden via -DbaseUrl=... in Maven/TestNG
-        String baseUrl = System.getProperty("baseUrl",
-                "http://digy-hrms-quality-fe.s3-website-us-east-1.amazonaws.com/auth/login");
-        page.navigate(baseUrl);
-        page.waitForLoadState();
+        Browser.NewContextOptions contextOptions = new Browser.NewContextOptions();
+        if (!isCI) {
+            contextOptions.setViewportSize(null); // use full screen size locally
+        } else {
+            contextOptions.setViewportSize(1920, 1080); // fixed size in CI
+        }
 
-        System.out.println("🚀 Browser launched in MAXIMIZED mode");
+        context = browser.newContext(contextOptions);
+        page    = context.newPage();
+
+        System.out.println("🚀 Browser launched in "
+                + (isCI ? "HEADLESS (CI)" : "MAXIMIZED") + " mode");
     }
 
     @AfterMethod
-    public void tearDown(ITestResult result) {
+    public void tearDown() {
+        // Save a failure screenshot if test failed
+        try {
+            if (page != null) {
+                File dir = new File("screenshots");
+                if (!dir.exists()) dir.mkdirs();
+                String path = "screenshots/verifyEmployeesFlow_FAILED_"
+                        + System.currentTimeMillis() + ".png";
+                page.screenshot(new Page.ScreenshotOptions()
+                        .setPath(Paths.get(path))
+                        .setFullPage(true));
+                System.out.println("📸 Failure screenshot saved: " + path);
+            }
+        } catch (Exception ignored) {}
 
-        if (page != null && ITestResult.FAILURE == result.getStatus()) {
-
-            File dir = new File("screenshots");
-            if (!dir.exists()) dir.mkdirs();
-
-            String fileName = "screenshots/"
-                    + result.getName() + "_FAILED_"
-                    + System.currentTimeMillis() + ".png";
-
-            page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(Paths.get(fileName))
-                    .setFullPage(true));
-
-            System.out.println("📸 Failure screenshot saved: " + fileName);
-        }
-
-        if (context != null) context.close();
-        if (browser != null) browser.close();
+        if (context    != null) context.close();
+        if (browser    != null) browser.close();
         if (playwright != null) playwright.close();
-
         System.out.println("🔒 Browser closed");
     }
 }
